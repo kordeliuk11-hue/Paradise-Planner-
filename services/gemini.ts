@@ -1,8 +1,15 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 
 const getAi = () => {
-    if (!process.env.API_KEY) return null;
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // The API key must be obtained exclusively from the environment variable process.env.API_KEY.
+    // Assume this variable is pre-configured, valid, and accessible.
+    const apiKey = process.env.API_KEY;
+    
+    if (!apiKey) {
+        console.error("API Key is missing! Make sure API_KEY is set in environment variables.");
+        return null;
+    }
+    return new GoogleGenAI({ apiKey: apiKey });
 };
 
 const SYSTEM_INSTRUCTION = `
@@ -27,7 +34,7 @@ export const generateAbsurdTask = async (task: string): Promise<string> => {
         temperature: 1.2,
       },
     });
-    return response.text.trim();
+    return response.text ? response.text.trim() : `Просто сделай "${task}".`;
   } catch (error) {
     console.error("Gemini Error:", error);
     return `Просто сделай "${task}" и не задавай вопросов.`;
@@ -47,7 +54,7 @@ export const generateExcuse = async (task: string): Promise<string> => {
           temperature: 1.4,
         },
       });
-      return response.text.trim();
+      return response.text ? response.text.trim() : "Мне просто лень.";
     } catch (error) {
       return "Мне просто лень.";
     }
@@ -108,7 +115,7 @@ export const generateInsult = async (): Promise<string> => {
           temperature: 1.3
         },
       });
-      return response.text.trim();
+      return response.text ? response.text.trim() : "Тебе уже весело?";
     } catch (error) {
       return "Тебе уже весело?";
     }
@@ -128,7 +135,7 @@ export const generatePsychProfile = async (name: string): Promise<string> => {
           temperature: 1.1
         },
       });
-      return response.text.trim();
+      return response.text ? response.text.trim() : "Субъект скучен и не вызывает интереса.";
     } catch (error) {
       return "Субъект скучен и не вызывает интереса.";
     }
