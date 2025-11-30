@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta name="theme-color" content="#2b2b2b" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Paradise Planner</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9205/9205126.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'postal-rust': '#8B4513',
+              'postal-dirt': '#5d5b4e',
+              'postal-paper': '#f3e5ab',
+              'postal-alert': '#cc0000',
+              'postal-ui': '#2b2b2b',
+            },
+            fontFamily: {
+              'dirty': ['"Courier New"', 'Courier', 'monospace'],
+              'impact': ['Impact', 'Haettenschweiler', 'sans-serif'],
+              'hand': ['"Caveat"', 'cursive'],
+            },
+            backgroundImage: {
+              'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.1%22/%3E%3C/svg%3E')",
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #1a1a1a;
+        color: #e5e5e5;
+        overflow-x: hidden;
+        overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile which ruins the app feel */
+      }
+      /* Custom scrollbar to look like rusty pipes */
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #2b2b2b; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #8B4513; 
+        border: 2px solid #1a1a1a;
+      }
+      .dirty-text-shadow {
+        text-shadow: 2px 2px 0px #000000;
+      }
+      .grunge-border {
+        border: 4px solid #2b2b2b;
+        box-shadow: 5px 5px 0px #000000;
+      }
+      .paper-texture {
+        background-image: repeating-linear-gradient(#f3e5ab 0px, #f3e5ab 24px, #a0a0a0 25px);
+        background-color: #f3e5ab;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

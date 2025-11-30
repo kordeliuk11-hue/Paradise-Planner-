@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Copy of Copy of Paradise Planner: Абсурдный Ежедневник",
+  "description": "Сатирический, грязный трекер задач, вдохновленный хаосом начала 2000-х. Никакого насилия, только сарказм, поручения и энтропия.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
