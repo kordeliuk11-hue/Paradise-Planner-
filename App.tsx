@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ClipboardList, AlertTriangle, Camera, Skull, Volume2, VolumeX, User, Award, ShieldAlert, FileText, Trash2, Zap, Brain, MessageSquareWarning, Download } from 'lucide-react';
+import { ClipboardList, AlertTriangle, Camera, Skull, Volume2, VolumeX, User, Award, ShieldAlert, FileText, Trash2, Zap, Brain, MessageSquareWarning, Download, Share, MoreVertical, X } from 'lucide-react';
 import { AppView, Task, UserStats, Achievement } from './types';
 import TaskTracker from './components/TaskTracker';
 import MadnessSystem from './components/MadnessSystem';
@@ -9,11 +9,14 @@ import PersonalFile from './components/PersonalFile';
 import Ramblings from './components/Ramblings';
 import AchievementPopup from './components/AchievementPopup';
 import { playTts } from './services/gemini';
+import { DirtyCard, GrittyButton } from './components/DirtyUI';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.TASKS);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   // --- STATE MANAGEMENT ---
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -49,18 +52,20 @@ const App: React.FC = () => {
   }, [stats, tasks]);
 
   useEffect(() => {
-    // Load unlocked status from local storage to sync with definitions
+    // Load unlocked status
     const savedUnlocked = JSON.parse(localStorage.getItem('paradise_unlocked_ids') || '[]');
     setAchievements(prev => prev.map(a => ({
         ...a,
         unlocked: savedUnlocked.includes(a.id)
     })));
 
+    // Check if running in standalone mode (already installed)
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    setIsStandalone(isStandaloneMode);
+
     // PWA Install Prompt Listener
     const handleBeforeInstallPrompt = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
     };
 
@@ -79,13 +84,16 @@ const App: React.FC = () => {
   };
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    // Show the install prompt
-    deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
+    if (deferredPrompt) {
+      // If we have the native android prompt captured
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      // Fallback for iOS or when prompt is unavailable
+      setShowInstallHelp(true);
     }
   };
 
@@ -195,13 +203,52 @@ const App: React.FC = () => {
       
       <AchievementPopup achievement={lastUnlocked} onClose={() => setLastUnlocked(null)} />
 
+      {/* Install Help Modal */}
+      {showInstallHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4">
+          <DirtyCard className="w-full max-w-md border-postal-rust">
+            <div className="flex justify-between items-start mb-4">
+               <h2 className="text-2xl font-impact uppercase text-postal-rust">Как установить эту срань</h2>
+               <button onClick={() => setShowInstallHelp(false)} className="text-stone-500 hover:text-white"><X /></button>
+            </div>
+            
+            <div className="space-y-6 font-hand text-xl text-stone-900">
+               <p className="font-bold">Это не App Store, детка. Здесь всё ручками.</p>
+               
+               <div className="bg-stone-300 p-3 rounded border-2 border-stone-500">
+                 <h3 className="font-impact text-stone-700 uppercase mb-2 flex items-center gap-2"><span className="text-2xl">🍎</span> На iPhone (Safari):</h3>
+                 <ol className="list-decimal list-inside space-y-2">
+                   <li>Жми кнопку <span className="inline-block bg-stone-200 px-1 border border-stone-400"><Share size={16} className="inline text-blue-500" /> Поделиться</span> (внизу экрана).</li>
+                   <li>Листай вниз и жми <span className="font-bold">"На экран «Домой»"</span>.</li>
+                   <li>Нажми "Добавить". Не тупи.</li>
+                 </ol>
+               </div>
+
+               <div className="bg-stone-300 p-3 rounded border-2 border-stone-500">
+                 <h3 className="font-impact text-stone-700 uppercase mb-2 flex items-center gap-2"><span className="text-2xl">🤖</span> На Android (Chrome):</h3>
+                 <ol className="list-decimal list-inside space-y-2">
+                   <li>Жми <span className="inline-block bg-stone-200 px-1 border border-stone-400"><MoreVertical size={16} className="inline" /> Меню</span> (три точки в углу).</li>
+                   <li>Ищи <span className="font-bold">"Установить приложение"</span> или "Добавить на гл. экран".</li>
+                 </ol>
+               </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <GrittyButton onClick={() => setShowInstallHelp(false)} className="w-full">
+                Я понял, отвали
+              </GrittyButton>
+            </div>
+          </DirtyCard>
+        </div>
+      )}
+
       {/* Top Header */}
       <header className="h-14 bg-postal-ui border-b-4 border-stone-950 flex items-center justify-between px-4 shadow-lg z-10">
         <h1 className="text-xl font-impact tracking-widest text-postal-rust uppercase dirty-text-shadow">
           Paradise<span className="text-white">Planner</span>
         </h1>
         <div className="flex items-center gap-2">
-            {deferredPrompt && (
+            {!isStandalone && (
                 <button
                     onClick={handleInstallClick}
                     className="p-2 bg-postal-rust text-white rounded hover:bg-orange-800 animate-pulse border-2 border-stone-950 shadow-sm"
